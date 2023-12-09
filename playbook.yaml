@@ -1,0 +1,134 @@
+---
+- name: Intro to Ansible Playbooks
+  hosts: all
+  gather_facts: True
+
+  vars:
+    message: "<html><body><h1>Hello from Ansible</h1></body></html> \n"
+
+  tasks:
+  - name: Add the user 'foo'
+    ansible.builtin.user:
+      name: foo
+    become: yes
+    become_method: sudo
+
+  - name: upgrade packages amazon
+    dnf:
+      name: '*'
+      state: latest
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: upgrade packages ubuntu
+    apt:
+      name: '*'
+      state: latest
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+
+  - name: install the latest version of nano
+    dnf:
+      name: nano
+      state: latest
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: install the latest version of nano
+    apt:
+      name: nano
+      state: latest
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+
+  - name: create a web Root directory amazon
+    ansible.builtin.file:
+      path: /var/www/html
+      state: directory
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: create a web Root directory ubuntu
+    ansible.builtin.file:
+      path: /usr/share/nginx/html
+      state: directory
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+
+  - name: Create file index.html
+    ansible.builtin.file:
+      path: /var/www/html/index.html 
+      state: touch
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: Create file index.html
+    ansible.builtin.file:
+      path: /usr/share/nginx/html/index.html
+      state: touch
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+
+  - name: Create index.html with content
+    ansible.builtin.copy:
+      content: "{{ message }}"
+      dest: /var/www/html/index.html
+    notify: "html file saved"
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: Create index.html with content
+    ansible.builtin.copy:
+      content: "{{ message }}"
+      dest: /usr/share/nginx/html/index.html
+    notify: "html file saved"
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+
+  - name: install NGINX
+    dnf: 
+      name: nginx
+      state: latest
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: install NGINX
+    apt:
+      name: nginx
+      state: latest
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+
+  - name: run NGINX
+    ansible.builtin.service:
+      name: nginx
+      state: started
+      enabled: true
+    become: yes
+    when: "ansible_distribution == 'Amazon'"
+
+  - name: run NGINX
+    ansible.builtin.service:
+      name: nginx
+      state: started
+      enabled: true
+    become: yes
+    when: "ansible_distribution == 'Ubuntu'"
+  
+  handlers:
+  - name: html file saved
+    debug:
+      msg: html file was saved!
+    become: yes
+    when: "ansible_distribution == 'Amazon' or ansible_distribution == 'Ubuntu'"
+
+  
+
+    
+
+
+
+
+  
+
+  
